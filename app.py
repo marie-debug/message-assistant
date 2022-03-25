@@ -16,7 +16,8 @@ class Config:
 
 
 # create app
-app = Flask(__name__)
+application = Flask(__name__)
+app = application
 app.config.from_object(Config())
 
 # initialize scheduler
@@ -25,7 +26,6 @@ scheduler = APScheduler()
 # scheduler.api_enabled = True
 scheduler.init_app(app)
 
-app = Flask(__name__)
 account_sid = os.environ['TWILIO_ACCOUNT_SID']
 auth_token = os.environ['TWILIO_AUTH_TOKEN']
 client = Client(account_sid, auth_token)
