@@ -1,0 +1,8 @@
+{
+  "birthday": [
+    "Happy Birthday {}!",
+    "Happy Birthday {} party like a rockstar!",
+    "Hey, {} happy birthday have a great one"
+  ],
+  "halloween": ["Happy Halloween {}"]
+}
