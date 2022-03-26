@@ -42,7 +42,7 @@ with open("templates.json", "r") as f:
     templates = json.loads(f.read())
 
 
-@scheduler.task('cron', id='do_send_messages', hour='8', minute='0', jitter=120)
+@scheduler.task('cron', id='do_send_messages', hour='22', minute='0', jitter=120)
 def sendMessagesCron():
     now = date.today()
     sendmessages(now)
