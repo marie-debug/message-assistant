@@ -10,8 +10,10 @@ from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail
 import logging
 from logging.handlers import RotatingFileHandler
-
-from zoneinfo import ZoneInfo
+try:
+    import zoneinfo
+except ImportError:
+    from backports import zoneinfo
 
 logger = logging.getLogger(__name__)
 formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
@@ -21,7 +23,7 @@ logger.setLevel(logging.DEBUG)
 # set configuration values
 class Config:
     SCHEDULER_API_ENABLED = True
-    SCHEDULER_TIMEZONE = ZoneInfo('Australia/Brisbane')
+    SCHEDULER_TIMEZONE = zoneinfo.ZoneInfo('Australia/Brisbane')
 
 
 # create app
