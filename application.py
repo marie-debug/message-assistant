@@ -1,5 +1,5 @@
 import ast
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 import os
 from twilio.rest import Client
 import json
@@ -10,6 +10,10 @@ from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail
 import logging
 from logging.handlers import RotatingFileHandler
+from twilio.twiml.messaging_response import MessagingResponse
+
+import bot
+
 try:
     import zoneinfo
 except ImportError:
@@ -55,7 +59,7 @@ with open("templates.json", "r") as f:
     templates = json.loads(f.read())
 
 
-@scheduler.task('cron', id='do_send_messages', hour='22', minute='0', jitter=120)
+@scheduler.task('cron', id='do_send_messages', hour='8', minute='0', jitter=120)
 def sendMessagesCron():
     now = date.today()
     sendMessages(now)
@@ -84,7 +88,7 @@ def sendMessages(now):
                 sent_message = sendmessage(body, from_number, to_number, to_name, message['type'])
                 sent_messages_strings.append(str(sent_message))
             else:
-                print(message['name'] + ' is not in environment PHONES')
+                logger.error(message['name'] + ' is not in environment PHONES')
         sendAdminEmail(sent_messages_strings)
 
 
@@ -110,15 +114,29 @@ def sendAdminEmail(sent_messages_strings):
     try:
         sg = SendGridAPIClient(send_grid_key)
         response = sg.send(message)
-        print("email sent status: {} body: {}".format(response.status_code, response.body))
+        logger.info("email sent status: {} body: {}".format(response.status_code, response.body))
     except Exception as e:
-        print(e)
+        logger.error(e)
 
 
 @app.route('/')
 def hello_world():
-    logger.info("logggggg")
     return jsonify(hello='world')
+
+
+@app.route("/sms-reply", methods=['GET', 'POST'])
+def incoming_sms():
+    # Get the message the user
+    body = request.values.get('Body', None)
+
+    # Start our TwiML response
+    resp = MessagingResponse()
+
+    # Determine the right reply for this message
+
+    resp.message(bot.chatbot.get_response(body))
+
+    return str(resp)
 
 
 if __name__ == '__main__':

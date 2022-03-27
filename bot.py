@@ -3,7 +3,7 @@ from chatterbot.trainers import ListTrainer
 from chatterbot.trainers import ChatterBotCorpusTrainer
 
 # Create a new chatbot named Charlie
-chatbot = ChatBot('Tunga', logic_adapters=[
+chatbot = ChatBot('Doppelganger', logic_adapters=[
     {
 
         'import_path': 'chatterbot.logic.BestMatch',
@@ -126,9 +126,9 @@ trainer.train([
     "say hi to everyone",
     "👍🏾 👍🏾",
 ])
-print('Type something to begin...')
 
 # The following loop will execute each time the user enters input
+"""
 while True:
     try:
         user_input = input()
@@ -140,3 +140,4 @@ while True:
     # Press ctrl-c or ctrl-d on the keyboard to exit
     except (KeyboardInterrupt, EOFError, SystemExit):
         break
+"""
