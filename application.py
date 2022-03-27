@@ -8,11 +8,20 @@ import random
 from flask_apscheduler import APScheduler
 from sendgrid import SendGridAPIClient
 from sendgrid.helpers.mail import Mail
+import logging
+from logging.handlers import RotatingFileHandler
+
+from zoneinfo import ZoneInfo
+
+logger = logging.getLogger(__name__)
+formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
+logger.setLevel(logging.DEBUG)
 
 
 # set configuration values
 class Config:
     SCHEDULER_API_ENABLED = True
+    SCHEDULER_TIMEZONE = ZoneInfo('Australia/Brisbane')
 
 
 # create app
@@ -20,10 +29,12 @@ application = Flask(__name__)
 app = application
 app.config.from_object(Config())
 
+handler = RotatingFileHandler('/opt/python/log/application.log', maxBytes=1024, backupCount=5)
+handler.setFormatter(formatter)
+application.logger.addHandler(handler)
+
 # initialize scheduler
 scheduler = APScheduler()
-# if you don't wanna use a config, you can set options here:
-# scheduler.api_enabled = True
 scheduler.init_app(app)
 
 account_sid = os.environ['TWILIO_ACCOUNT_SID']
@@ -45,8 +56,8 @@ with open("templates.json", "r") as f:
 @scheduler.task('cron', id='do_send_messages', hour='22', minute='0', jitter=120)
 def sendMessagesCron():
     now = date.today()
-    sendmessages(now)
-    print('cron ran at {}'.format(now))
+    sendMessages(now)
+    logger.info('cron ran at {} gmt'.format(now))
 
 
 scheduler.start()
@@ -58,7 +69,7 @@ def getbody(type, name):
     return randomMessage.format(name.capitalize()) + '\nCheers Tunga and Marion'
 
 
-def sendmessages(now):
+def sendMessages(now):
     sent_messages_strings = []
     today = now.strftime("%d/%m")
     if today in dates:
@@ -103,9 +114,8 @@ def sendAdminEmail(sent_messages_strings):
 
 
 @app.route('/')
-def hello_world():  # put application's code her
-    # Find your Account SID and Auth Token at twilio.com/console
-    # and set the environment variables. See http://twil.io/secure
+def hello_world():
+    logger.info("logggggg")
     return jsonify(hello='world')
 
 
