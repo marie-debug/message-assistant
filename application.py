@@ -11,6 +11,7 @@ from sendgrid.helpers.mail import Mail
 import logging
 from logging.handlers import RotatingFileHandler
 from twilio.twiml.messaging_response import MessagingResponse
+
 import bot
 
 try:
@@ -127,15 +128,14 @@ def hello_world():
 def incoming_sms():
     # Get the message the user
     body = request.values.get('Body', None)
-    logger.info("received:"+body)
+    logger.info("received:" + body)
     # Start our TwiML response
     resp = MessagingResponse()
 
     # Determine the right reply for this message
-    reply = bot.chatbot.get_response(body)
+    reply = bot.reply(body)
     logger.info("replay:"+reply)
     resp.message(reply)
-
     return str(resp)
 
 

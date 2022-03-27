@@ -127,6 +127,12 @@ trainer.train([
     "👍🏾 👍🏾",
 ])
 
+
+def reply(message):
+    reply = chatbot.get_response(message)
+    return reply.text
+
+
 # The following loop will execute each time the user enters input
 """
 while True:
