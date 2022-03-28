@@ -17,7 +17,7 @@ def AddActiveUser(_from):
         TableName="active_users",
         Item={
             'From': {'S': _from},
-            'ExpirationTime': {'N': str(int((datetime.utcnow() + timedelta(hours=1)).timestamp()))}
+            'ExpirationTime': {'N': str(int((datetime.utcnow() + timedelta(minutes=30)).timestamp()))}
         }
     )
 
