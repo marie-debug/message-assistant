@@ -57,6 +57,11 @@ trainer.train([
 ])
 
 trainer.train([
+    "new number",
+    "yeah! still have old number but got ths one too. save it",
+])
+
+trainer.train([
     "new apartment",
     "gotta go will talk later",
 ])
@@ -98,6 +103,11 @@ trainer.train([
 
 trainer.train([
     "help with 100 bucks",
+    "dont have extra cash now things a tight",
+])
+
+trainer.train([
+    "can i borrow",
     "dont have extra cash now things a tight",
 ])
 
