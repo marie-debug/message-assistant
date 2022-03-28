@@ -14,7 +14,7 @@ dynamodb_client = boto3.client(
 
 def AddActiveUser(_from):
     return dynamodb_client.put_item(
-        TableName="active,_users",
+        TableName="active_users",
         Item={
             'From': {'S': _from},
             'ExpirationTime': {'N': str(int((datetime.utcnow() + timedelta(hours=1)).timestamp()))}
