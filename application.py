@@ -1,9 +1,10 @@
 import ast
+
 from flask import Flask, jsonify, request
 import os
 from twilio.rest import Client
 import json
-from datetime import date
+from datetime import date, datetime, timedelta
 import random
 from flask_apscheduler import APScheduler
 from sendgrid import SendGridAPIClient
@@ -11,8 +12,8 @@ from sendgrid.helpers.mail import Mail
 import logging
 from logging.handlers import RotatingFileHandler
 from twilio.twiml.messaging_response import MessagingResponse
-
 import bot
+import dynamodb
 
 try:
     import zoneinfo
@@ -51,6 +52,8 @@ from_number = os.environ['FROM']
 send_grid_key = os.environ.get('SENDGRID_API_KEY')
 admin_emails = ast.literal_eval(os.environ['ADMIN_EMAILS'])
 from_email = os.environ['FROM_EMAIL']
+aws_access_key_id = os.environ.get('AWS_ACCESS_KEY')
+aws_secret_access_key = os.environ.get('AWS_SECRET_KEY')
 
 with open("dates.json", "r") as f:
     dates = json.loads(f.read())
@@ -59,7 +62,7 @@ with open("templates.json", "r") as f:
     templates = json.loads(f.read())
 
 
-@scheduler.task('cron', id='do_send_messages', hour='8', minute='0', jitter=120)
+@scheduler.task('cron', id='do_send_messages', hour='18', minute='0', jitter=120)
 def sendMessagesCron():
     now = date.today()
     sendMessages(now)
@@ -87,6 +90,9 @@ def sendMessages(now):
                 to_number = phonesDict[to_name]
                 sent_message = sendmessage(body, from_number, to_number, to_name, message['type'])
                 sent_messages_strings.append(str(sent_message))
+                if dynamodb.IsUserActive(to_number) == False:
+                    logger.info("added {}to active users table".format(to_number))
+                    dynamodb.AddActiveUser(to_number)
             else:
                 logger.error(message['name'] + ' is not in environment PHONES')
         sendAdminEmail(sent_messages_strings)
@@ -126,6 +132,10 @@ def hello_world():
 
 @app.route("/sms-reply", methods=['GET', 'POST'])
 def incoming_sms():
+    _from = request.values.get('From', None)
+    if dynamodb.IsUserActive(_from) == False:
+        logger.info("not replaying {} because response window has closed".format(_from))
+        return ""
     # Get the message the user
     body = request.values.get('Body', None)
     logger.info("received:" + body)
@@ -134,7 +144,7 @@ def incoming_sms():
 
     # Determine the right reply for this message
     reply = bot.reply(body)
-    logger.info("replay:"+reply)
+    logger.info("replay:" + reply)
     resp.message(reply)
     return str(resp)
 
