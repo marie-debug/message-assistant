@@ -64,9 +64,9 @@ with open("templates.json", "r") as f:
 
 @scheduler.task('cron', id='do_send_messages', hour='20', minute='0', jitter=120)
 def sendMessagesCron():
-    now = date.today()
-    sendMessages(now)
-    logger.info('cron ran at {} gmt'.format(now))
+    now = datetime.now()
+    sendMessages(now.today())
+    logger.info('cron ran at {} {} aest'.format(now.today(), now.strftime("%H:%M:%S")))
 
 
 scheduler.start()
