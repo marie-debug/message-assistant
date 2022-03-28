@@ -33,3 +33,12 @@ def IsUserActive(_from):
         return True
     else:
         return False
+
+
+def RemoveActiveUser(_from):
+    return dynamodb_client.delete_item(
+        TableName="active_users",
+        Key={
+            'From': {'S': _from}
+        }
+    )

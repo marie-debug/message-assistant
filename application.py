@@ -146,6 +146,8 @@ def incoming_sms():
     reply = bot.reply(body)
     logger.info("replay:" + reply)
     resp.message(reply)
+    if reply == bot.FINAL_MESSAGE:
+        dynamodb.RemoveActiveUser(_from)
     return str(resp)
 
 

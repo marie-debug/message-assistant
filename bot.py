@@ -2,12 +2,13 @@ from chatterbot import ChatBot
 from chatterbot.trainers import ListTrainer
 from chatterbot.trainers import ChatterBotCorpusTrainer
 
+FINAL_MESSAGE = 'gotta go will talk later'
 # Create a new chatbot named Charlie
 chatbot = ChatBot('Doppelganger', logic_adapters=[
     {
 
         'import_path': 'chatterbot.logic.BestMatch',
-        'default_response': 'gotta go will talk later',
+        'default_response': FINAL_MESSAGE,
         'maximum_similarity_threshold': 0.70
     },
 ])
