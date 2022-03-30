@@ -1,5 +1,6 @@
 import ast
 
+import requests
 from flask import Flask, jsonify, request
 import os
 from twilio.rest import Client
@@ -64,6 +65,11 @@ with open("templates.json", "r") as f:
 
 @scheduler.task('cron', id='do_send_messages', hour='8', minute='0', jitter=120)
 def sendMessagesCron():
+    try:
+        requests.get("https://hc-ping.com/24a68c85-cca8-4199-a3f8-719ed19cdf0f", timeout=10)
+    except requests.RequestException as e:
+        logger.warning("healthchecks.io ping failed: %s" % e)
+
     now = datetime.now()
     sendMessages(now.today())
     logger.info('cron ran at {} {} aest'.format(now.today(), now.strftime("%H:%M:%S")))
