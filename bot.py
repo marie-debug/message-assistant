@@ -1,8 +1,21 @@
+import json
+
 from chatterbot import ChatBot
 from chatterbot.trainers import ListTrainer
 from chatterbot.trainers import ChatterBotCorpusTrainer
+import os
+import openai
+
+import config
+from User import User
+
+openai.api_key = os.environ['OPENAI_API_KEY']
 
 FINAL_MESSAGE = 'gotta go will talk later'
+
+with open("contexts.json", "r") as f:
+    contexts = json.loads(f.read())
+
 # Create a new chatbot named Charlie
 chatbot = ChatBot('Doppelganger', logic_adapters=[
     {
@@ -68,6 +81,16 @@ trainer.train([
 
 trainer.train([
     "will you be coming for the holidays",
+    "no leave days at all...",
+])
+
+trainer.train([
+    "will you be coming for the Christmas",
+    "no leave days at all...",
+])
+
+trainer.train([
+    "will you be coming for the xmas",
     "no leave days at all...",
 ])
 
@@ -139,21 +162,45 @@ trainer.train([
 ])
 
 
-def reply(message):
+def reply(message, active_user):
     reply = chatbot.get_response(message)
-    return reply.text
+    if reply.confidence == 0:
+        return get_open_ai_response(message, active_user)
+    else:
+        return reply.text
 
 
-# The following loop will execute each time the user enters input
+def get_open_ai_response(message, active_user):
+    active_user_relation = active_user.Relation
+    data = contexts[active_user_relation]
+    persona = data["persona"]
+    context = data["context"]
+
+    prompt = "{}\n\n{}: {}\n{}: ".format(context, active_user_relation, message, persona)
+    response = openai.Completion.create(
+        engine="text-davinci-002",
+        prompt=prompt,
+        temperature=0.3,
+        max_tokens=60,
+        top_p=1.0,
+        frequency_penalty=0.5,
+        presence_penalty=0.0,
+        stop=[" {}:", " {}:".format(active_user_relation, persona)]
+    )
+
+    if 'choices' not in response:
+        return FINAL_MESSAGE
+    return response["choices"][0]["text"].strip()
+
+
 """
+ The following loop will execute each time the user enters input
 while True:
     try:
+        active_user = SentMessage("1", "birtday", "zane", "+9111", "nephew","")
         user_input = input()
-
-        bot_response = chatbot.get_response(user_input)
-
+        bot_response = reply(user_input, active_user)
         print(bot_response)
-
     # Press ctrl-c or ctrl-d on the keyboard to exit
     except (KeyboardInterrupt, EOFError, SystemExit):
         break

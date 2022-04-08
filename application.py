@@ -15,6 +15,7 @@ from logging.handlers import RotatingFileHandler
 from twilio.twiml.messaging_response import MessagingResponse
 import bot
 import dynamodb
+from User import User
 
 try:
     import zoneinfo
@@ -62,6 +63,8 @@ with open("dates.json", "r") as f:
 with open("templates.json", "r") as f:
     templates = json.loads(f.read())
 
+with open("people.json", "r") as f:
+    people = json.loads(f.read())
 
 @scheduler.task('cron', id='do_send_messages', hour='8', minute='0', jitter=120)
 def sendMessagesCron():
@@ -96,9 +99,9 @@ def sendMessages(now):
                 to_number = phonesDict[to_name]
                 sent_message = sendmessage(body, from_number, to_number, to_name, message['type'])
                 sent_messages_strings.append(str(sent_message))
-                if dynamodb.IsUserActive(to_number) == False:
-                    logger.info("added {}to active users table".format(to_number))
-                    dynamodb.AddActiveUser(to_number)
+                if dynamodb.GetActiveUser(to_name) == None:
+                    dynamodb.AddActiveUser(sent_message)
+                    logger.info("added {} to active users table".format(to_name))
             else:
                 logger.error(message['name'] + ' is not in environment PHONES')
         sendAdminEmail(sent_messages_strings)
@@ -111,7 +114,9 @@ def sendmessage(messageBody, messageFrom, messageToNumber, messageToName, messag
         to=messageToNumber
     )
 
-    return {"type": messageType, "sentTo": messageToName, "id": message.sid, "error": message.error_message}
+    relation = people[messageToName]["relation"]
+
+    return User(message.sid, messageType, messageToName, messageToNumber, relation, message.error_message)
 
 
 def sendAdminEmail(sent_messages_strings):
@@ -133,14 +138,17 @@ def sendAdminEmail(sent_messages_strings):
 
 @app.route('/')
 def hello_world():
+    now = datetime.now()
+    sendMessages(now.today())
     return jsonify(hello='world')
 
 
 @app.route("/sms-reply", methods=['GET', 'POST'])
 def incoming_sms():
-    _from = request.values.get('From', None)
-    if dynamodb.IsUserActive(_from) == False:
-        logger.info("not replaying {} because response window has closed".format(_from))
+    phone_number = request.values.get('From', None)
+    active_user = dynamodb.GetActiveUser(phone_number)
+    if active_user == None:
+        logger.info("not replaying {} because response window has closed".format(phone_number))
         return ""
     # Get the message the user
     body = request.values.get('Body', None)
@@ -149,11 +157,11 @@ def incoming_sms():
     resp = MessagingResponse()
 
     # Determine the right reply for this message
-    reply = bot.reply(body)
+    reply = bot.reply(body,active_user)
     logger.info("replay:" + reply)
     resp.message(reply)
     if reply == bot.FINAL_MESSAGE:
-        dynamodb.RemoveActiveUser(_from)
+        dynamodb.RemoveActiveUser(phone_number)
     return str(resp)
 
 

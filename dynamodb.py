@@ -2,6 +2,8 @@ import boto3
 import os
 from datetime import datetime, timedelta
 
+import User
+
 aws_access_key_id = os.environ.get('AWS_ACCESS_KEY')
 aws_secret_access_key = os.environ.get('AWS_SECRET_KEY')
 dynamodb_client = boto3.client(
@@ -12,33 +14,46 @@ dynamodb_client = boto3.client(
 )
 
 
-def AddActiveUser(_from):
+def AddActiveUser(sent_message):
     return dynamodb_client.put_item(
         TableName="active_users",
         Item={
-            'From': {'S': _from},
-            'ExpirationTime': {'N': str(int((datetime.utcnow() + timedelta(minutes=30)).timestamp()))}
+            'Id': {'S': sent_message.Id},
+            'Type': {'S': sent_message.Type},
+            'Name': {'S': sent_message.Name},
+            'PhoneNumber': {'S': sent_message.PhoneNumber},
+            'Relation': {'S': sent_message.Relation},
+            'ExpirationTime': {'N': sent_message.ExpirationTime},
+            'Error': {'S': str(sent_message.Error)},
         }
     )
 
 
-def IsUserActive(_from):
+def GetActiveUser(phone_number):
     response = dynamodb_client.get_item(
         Key={
-            'From': {'S': _from},
+            'PhoneNumber': {'S': phone_number},
         },
         TableName="active_users",
     )
     if 'Item' in response:
-        return True
+        item = response['Item']
+        return SentMessage.User(
+            item['Id'],
+            item['Type'],
+            item['Name'],
+            item['PhoneNumber'],
+            item['Relation'],
+            item['Error']
+        )
     else:
-        return False
+        return None
 
 
-def RemoveActiveUser(_from):
+def RemoveActiveUser(phone_number):
     return dynamodb_client.delete_item(
         TableName="active_users",
         Key={
-            'From': {'S': _from}
+            'PhoneNumber': {'S': phone_number}
         }
     )
