@@ -138,8 +138,6 @@ def sendAdminEmail(sent_messages_strings):
 
 @app.route('/')
 def hello_world():
-    now = datetime.now()
-    sendMessages(now.today())
     return jsonify(hello='world')
 
 
