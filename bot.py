@@ -7,6 +7,7 @@ import os
 import openai
 
 import config
+import dynamodb
 from User import User
 
 openai.api_key = os.environ['OPENAI_API_KEY']
@@ -193,15 +194,16 @@ def get_open_ai_response(message, active_user):
     return response["choices"][0]["text"].strip()
 
 
-"""
- The following loop will execute each time the user enters input
+
+# The following loop will execute each time the user enters input
 while True:
     try:
-        active_user = SentMessage("1", "birtday", "zane", "+9111", "nephew","")
+        active_user = dynamodb.GetActiveUser("+61449113916")
+        print(active_user)
         user_input = input()
         bot_response = reply(user_input, active_user)
         print(bot_response)
     # Press ctrl-c or ctrl-d on the keyboard to exit
     except (KeyboardInterrupt, EOFError, SystemExit):
         break
-"""
+

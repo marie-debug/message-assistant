@@ -39,12 +39,12 @@ def GetActiveUser(phone_number):
     if 'Item' in response:
         item = response['Item']
         return User.User(
-            item['Id'],
-            item['Type'],
-            item['Name'],
-            item['PhoneNumber'],
-            item['Relation'],
-            item['Error']
+            item['Id']['S'],
+            item['Type']['S'],
+            item['Name']['S'],
+            item['PhoneNumber']['S'],
+            item['Relation']['S'],
+            item['Error']['S']
         )
     else:
         return None

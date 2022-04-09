@@ -1,3 +1,4 @@
+import json
 from datetime import datetime, timedelta
 
 
@@ -9,4 +10,10 @@ class User:
         self.PhoneNumber = phone_number
         self.Relation = relation
         self.ExpirationTime = str(int((datetime.utcnow() + timedelta(hours=24)).timestamp()))
-        self.Error = error
+        self.Error = str(error)
+
+    def __repr__(self):
+        return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)
+
+    def __str__(self):
+        return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)
