@@ -141,7 +141,7 @@ def hello_world():
     return jsonify(hello='world')
 
 @app.route('/sendtest')
-def hello_world():
+def send_test():
     now = datetime.now()
     sendMessages(now.today())
     return jsonify(hello='test')
