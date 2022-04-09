@@ -38,7 +38,7 @@ def GetActiveUser(phone_number):
     )
     if 'Item' in response:
         item = response['Item']
-        return SentMessage.User(
+        return User.User(
             item['Id'],
             item['Type'],
             item['Name'],

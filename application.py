@@ -140,6 +140,11 @@ def sendAdminEmail(sent_messages_strings):
 def hello_world():
     return jsonify(hello='world')
 
+@app.route('/sendtest')
+def hello_world():
+    now = datetime.now()
+    sendMessages(now.today())
+    return jsonify(hello='test')
 
 @app.route("/sms-reply", methods=['GET', 'POST'])
 def incoming_sms():
