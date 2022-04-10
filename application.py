@@ -66,6 +66,10 @@ with open("templates.json", "r") as f:
 with open("people.json", "r") as f:
     people = json.loads(f.read())
 
+with open("contexts.json", "r") as f:
+    contexts = json.loads(f.read())
+
+
 @scheduler.task('cron', id='do_send_messages', hour='8', minute='0', jitter=120)
 def sendMessagesCron():
     try:
@@ -84,7 +88,11 @@ scheduler.start()
 def getbody(type, name):
     templateMessageList = templates[type]
     randomMessage = random.choice(templateMessageList)
-    return randomMessage.format(name.capitalize()) + '\nCheers Tunga and Marion'
+    sign = ', Cheers Tunga and Marion'
+    relation = people[name]["relation"]
+    if relation == "nephew" or relation == "niece":
+        sign = ', From Uncle Tunga and Aunt Marion'
+    return randomMessage.format(name.capitalize()) + sign
 
 
 def sendMessages(now):
@@ -115,8 +123,17 @@ def sendmessage(messageBody, messageFrom, messageToNumber, messageToName, messag
     )
 
     relation = people[messageToName]["relation"]
+    data = contexts[relation]
+    persona = data["persona"]
+    context = data["context"]
 
-    return User(message.sid, messageType, messageToName, messageToNumber, relation, message.error_message)
+    conversations = [
+        "{}\n\n".format(context),
+        "{}: {}".format(persona, messageBody),
+    ]
+
+    return User(message.sid, messageType, messageToName, messageToNumber, relation, message.error_message,
+                conversations)
 
 
 def sendAdminEmail(sent_messages_strings):
@@ -140,11 +157,13 @@ def sendAdminEmail(sent_messages_strings):
 def hello_world():
     return jsonify(hello='world')
 
+
 @app.route('/sendtest')
 def send_test():
-    now = datetime.now()
-    sendMessages(now.today())
+    # now = datetime.now()
+    # sendMessages(now.today())
     return jsonify(hello='test')
+
 
 @app.route("/sms-reply", methods=['GET', 'POST'])
 def incoming_sms():
@@ -160,7 +179,7 @@ def incoming_sms():
     resp = MessagingResponse()
 
     # Determine the right reply for this message
-    reply = bot.reply(body,active_user)
+    reply = bot.reply(body, active_user)
     logger.info("replay:" + reply)
     resp.message(reply)
     if reply == bot.FINAL_MESSAGE:

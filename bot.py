@@ -164,20 +164,34 @@ trainer.train([
 
 
 def reply(message, active_user):
-    reply = chatbot.get_response(message)
-    if reply.confidence == 0:
-        return get_open_ai_response(message, active_user)
+    bot_reply = chatbot.get_response(message)
+    if bot_reply.confidence == 0:
+
+        active_user_relation = active_user.Relation
+        data = contexts[active_user_relation]
+        persona = data["persona"]
+
+        active_user.Conversation.append("{}: {}".format(active_user_relation, message))
+        active_user.Conversation.append("{}: ".format(persona))
+        prompt = "\n".join(active_user.Conversation)
+
+        r = get_open_ai_response(active_user_relation, persona, prompt)
+
+        active_user.Conversation[-2]=("{}: {}".format(active_user_relation, message))
+        active_user.Conversation[-1]=("{}: {}".format(persona,r))
+
+        dynamodb.UpdateActiveUserConversation(active_user)
+
+        return r
+
     else:
-        return reply.text
+        r = bot_reply.text
+        return r
 
 
-def get_open_ai_response(message, active_user):
-    active_user_relation = active_user.Relation
-    data = contexts[active_user_relation]
-    persona = data["persona"]
-    context = data["context"]
 
-    prompt = "{}\n\n{}: {}\n{}: ".format(context, active_user_relation, message, persona)
+
+def get_open_ai_response(active_user_relation, persona, prompt):
     response = openai.Completion.create(
         engine="text-davinci-002",
         prompt=prompt,
@@ -198,6 +212,7 @@ def get_open_ai_response(message, active_user):
         return FINAL_MESSAGE
 
     return ai_reply
+
 
 def unsafe(content_to_classify):
     response = openai.Completion.create(
@@ -253,7 +268,7 @@ def unsafe(content_to_classify):
 # The following loop will execute each time the user enters input
 while True:
     try:
-        active_user = dynamodb.GetActiveUser("+61449113916")
+        active_user = dynamodb.GetActiveUser("get via dic")
         print(active_user)
         user_input = input()
         bot_response = reply(user_input, active_user)
