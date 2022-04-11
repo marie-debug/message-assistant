@@ -31,7 +31,6 @@ trainer2 = ChatterBotCorpusTrainer(chatbot)
 
 trainer2.train(
     "chatterbot.corpus.english.greetings",
-    "chatterbot.corpus.english.money",
 )
 
 trainer.train([
@@ -280,11 +279,12 @@ def unsafe(content_to_classify):
 
 
 """
+import ast
 # The following loop will execute each time the user enters input
 while True:
     try:
-        active_user = dynamodb.GetActiveUser("get via dic")
-        print(active_user)
+        phonesDict = ast.literal_eval(os.environ["PHONES"])
+        active_user = dynamodb.GetActiveUser(phonesDict["tunga"])
         user_input = input()
         bot_response = reply(user_input, active_user)
         print(bot_response)
