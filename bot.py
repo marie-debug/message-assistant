@@ -22,7 +22,7 @@ chatbot = ChatBot('Doppelganger', logic_adapters=[
     {
         'import_path': 'chatterbot.logic.BestMatch',
         'default_response': FINAL_MESSAGE,
-        'maximum_similarity_threshold': 0.85
+        'maximum_similarity_threshold': 0.80
     },
 ])
 
@@ -95,6 +95,11 @@ trainer.train([
 ])
 
 trainer.train([
+    "vist us soon",
+    "👍🏾 👍🏾",
+])
+
+trainer.train([
     "hello",
     "hello",
 ])
@@ -136,6 +141,16 @@ trainer.train([
 
 trainer.train([
     "can i borrow money",
+    "dont have extra cash now things a tight",
+])
+
+trainer.train([
+    "do you have extra money",
+    "dont have extra cash now things a tight",
+])
+
+trainer.train([
+    "do you have extra cash",
     "dont have extra cash now things a tight",
 ])
 
