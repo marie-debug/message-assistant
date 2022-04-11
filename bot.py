@@ -20,10 +20,9 @@ with open("contexts.json", "r") as f:
 # Create a new chatbot named Charlie
 chatbot = ChatBot('Doppelganger', logic_adapters=[
     {
-
         'import_path': 'chatterbot.logic.BestMatch',
         'default_response': FINAL_MESSAGE,
-        'maximum_similarity_threshold': 0.70
+        'maximum_similarity_threshold': 0.90
     },
 ])
 
@@ -165,30 +164,26 @@ trainer.train([
 
 def reply(message, active_user):
     bot_reply = chatbot.get_response(message)
+    active_user_relation = active_user.Relation
+    data = contexts[active_user_relation]
+    persona = data["persona"]
+
     if bot_reply.confidence == 0:
-
-        active_user_relation = active_user.Relation
-        data = contexts[active_user_relation]
-        persona = data["persona"]
-
         active_user.Conversation.append("{}: {}".format(active_user_relation, message))
         active_user.Conversation.append("{}: ".format(persona))
         prompt = "\n".join(active_user.Conversation)
 
-        r = get_open_ai_response(active_user_relation, persona, prompt)
-
-        active_user.Conversation[-2]=("{}: {}".format(active_user_relation, message))
-        active_user.Conversation[-1]=("{}: {}".format(persona,r))
-
-        dynamodb.UpdateActiveUserConversation(active_user)
-
-        return r
-
+        response = get_open_ai_response(active_user_relation, persona, prompt)
+        active_user.Conversation[-2] = ("{}: {}".format(active_user_relation, message))
+        active_user.Conversation[-1] = ("{}: {}".format(persona, response))
     else:
-        r = bot_reply.text
-        return r
+        response = bot_reply.text
+        active_user.Conversation[-2] = ("{}: {}".format(active_user_relation, message))
+        active_user.Conversation[-1] = ("{}: {}".format(persona, response))
 
+    dynamodb.UpdateActiveUserConversation(active_user)
 
+    return response
 
 
 def get_open_ai_response(active_user_relation, persona, prompt):
