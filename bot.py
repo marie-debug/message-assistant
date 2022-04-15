@@ -54,7 +54,7 @@ trainer.train([
 ])
 
 trainer.train([
-    "what will you guys be up to",
+    "what will you be up to",
     "nothing much",
 ])
 
@@ -197,8 +197,8 @@ def reply(message, active_user):
         active_user.Conversation[-1] = ("{}: {}".format(persona, response))
     else:
         response = bot_reply.text
-        active_user.Conversation[-2] = ("{}: {}".format(active_user_relation, message))
-        active_user.Conversation[-1] = ("{}: {}".format(persona, response))
+        active_user.Conversation.append("{}: {}".format(active_user_relation, message))
+        active_user.Conversation.append("{}: {}".format(persona, response))
 
     dynamodb.UpdateActiveUserConversation(active_user)
 

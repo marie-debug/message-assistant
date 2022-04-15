@@ -160,8 +160,8 @@ def hello_world():
 
 @app.route('/sendtest')
 def send_test():
-    # now = datetime.now()
-    # sendMessages(now.today())
+    now = datetime.now()
+    sendMessages(now.today())
     return jsonify(hello='test')
 
 
