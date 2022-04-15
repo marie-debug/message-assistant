@@ -210,7 +210,7 @@ def get_open_ai_response(active_user_relation, persona, prompt):
         engine="text-davinci-002",
         prompt=prompt,
         temperature=0.3,
-        max_tokens=60,
+        max_tokens=240,
         top_p=1.0,
         frequency_penalty=0.5,
         presence_penalty=0.0,
