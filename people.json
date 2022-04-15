@@ -1,42 +1,26 @@
 {
-    "tunga": {
-    "name": "naomi",
-    "relation": "sister",
-    "hasPhone": true
+  "tunga": {
+    "relation": "sister"
   },
   "marion": {
-    "name": "zane",
-    "relation": "nephew",
-    "mother": "naomi"
+    "relation": "nephew"
   },
   "naomi": {
-    "name": "naomi",
-    "relation": "sister",
-    "hasPhone": true
+    "relation": "sister"
   },
   "zane": {
-    "name": "zane",
-    "relation": "nephew",
-    "mother": "naomi"
+    "relation": "nephew"
   },
   "zoe": {
-    "name": "zoe",
-    "relation": "niece",
-    "mother": "naomi"
+    "relation": "niece"
   },
   "tavonga": {
-    "name": "tavonga",
-    "relation": "sister",
-    "hasPhone": true
+    "relation": "sister"
   },
   "ethan": {
-    "name": "ethan",
-    "relation": "nephew",
-    "mother": "tavonga"
+    "relation": "nephew"
   },
   "tari": {
-    "name": "tari",
-    "relation": "niece",
-      "mother": "tavonga"
+    "relation": "niece"
   }
 }
