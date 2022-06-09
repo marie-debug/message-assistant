@@ -1,14 +1,13 @@
 import json
-
 from chatterbot import ChatBot
 from chatterbot.trainers import ListTrainer
 from chatterbot.trainers import ChatterBotCorpusTrainer
 import os
 import openai
-
 import config
 import dynamodb
 from User import User
+
 
 openai.api_key = os.environ['OPENAI_API_KEY']
 
@@ -115,32 +114,32 @@ trainer.train([
 
 trainer.train([
     "visa fee is",
-    "dont have extra cash now things a tight",
+    "dont have extra cash now things are tight",
 ])
 
 trainer.train([
     "money will pay back",
-    "dont have extra cash now things a tight",
+    "dont have extra cash now things are tight",
 ])
 
 trainer.train([
     "help with bill",
-    "dont have extra cash now things a tight",
+    "dont have extra cash now things are tight",
 ])
 
 trainer.train([
     "help with 100 bucks",
-    "dont have extra cash now things a tight",
+    "dont have extra cash now things are tight",
 ])
 
 trainer.train([
     "can i borrow",
-    "dont have extra cash now things a tight",
+    "dont have extra cash now things are tight",
 ])
 
 trainer.train([
     "can i borrow money",
-    "dont have extra cash now things a tight",
+    "dont have extra cash now things are tight",
 ])
 
 trainer.train([
@@ -150,7 +149,7 @@ trainer.train([
 
 trainer.train([
     "do you have extra cash",
-    "dont have extra cash now things a tight",
+    "dont have extra cash now things are tight",
 ])
 
 trainer.train([

@@ -70,7 +70,7 @@ with open("contexts.json", "r") as f:
     contexts = json.loads(f.read())
 
 
-@scheduler.task('cron', id='do_send_messages', hour='8', minute='0', jitter=120)
+@scheduler.task('cron', id='do_send_messages', hour='11', minute='0', jitter=120)
 def sendMessagesCron():
     try:
         requests.get("https://hc-ping.com/24a68c85-cca8-4199-a3f8-719ed19cdf0f", timeout=10)
@@ -86,6 +86,10 @@ scheduler.start()
 
 
 def getbody(type, name):
+    """
+
+    :rtype: object
+    """
     templateMessageList = templates[type]
     randomMessage = random.choice(templateMessageList)
     sign = ', Cheers Tunga and Marion'
