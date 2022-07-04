@@ -8,7 +8,6 @@ import config
 import dynamodb
 from User import User
 
-
 openai.api_key = os.environ['OPENAI_API_KEY']
 
 FINAL_MESSAGE = 'gotta go will talk later'
@@ -181,6 +180,15 @@ trainer.train([
 
 
 def reply(message, active_user):
+    """
+    returns a response to the input from chatterbot if confidence is zero else response is returned from openai
+    then updates user conversation  in dynamodb
+    :param message:
+    :type message: str
+    :param active_user:
+    :type active_user:User
+    :return response:
+    """
     bot_reply = chatbot.get_response(message)
     active_user_relation = active_user.Relation
     data = contexts[active_user_relation]
@@ -205,6 +213,17 @@ def reply(message, active_user):
 
 
 def get_open_ai_response(active_user_relation, persona, prompt):
+    """
+         generates text reply based on user conversation context
+    :param active_user_relation:
+    :type: str
+    :param persona:
+    :type: str
+    :param prompt:
+    :type: str
+    :return openai reply:
+    :rtype: str
+    """
     response = openai.Completion.create(
         engine="text-davinci-002",
         prompt=prompt,
@@ -228,6 +247,12 @@ def get_open_ai_response(active_user_relation, persona, prompt):
 
 
 def unsafe(content_to_classify):
+    """
+    Checks and detects whether text may be sensitive or unsafe
+    :param content_to_classify:
+    :type content_to_classify: str
+    :return: str
+    """
     response = openai.Completion.create(
         engine="content-filter-alpha",
         prompt="<|endoftext|>" + content_to_classify + "\n--\nLabel:",

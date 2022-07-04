@@ -4,15 +4,15 @@ from datetime import datetime, timedelta
 
 
 class User:
-    def __init__(self, id, type, name, phone_number, relation, error, conversation):
+    def __init__(self, id, name, phone_number, relation, error, conversation, age):
         self.Id = id
-        self.Type = type
         self.Name = name
         self.PhoneNumber = phone_number
         self.Relation = relation
         self.ExpirationTime = str(int((datetime.utcnow() + timedelta(hours=24)).timestamp()))
         self.Conversation = conversation
         self.Error = str(error)
+        self.Age = age
 
     def __repr__(self):
         return json.dumps(self, skipkeys=True, default=lambda o: o.__dict__, sort_keys=True, indent=4)
